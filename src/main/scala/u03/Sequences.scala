@@ -3,6 +3,8 @@ package u03
 import u03.Optionals.Optional
 import u03.Optionals.Optional.*
 
+import scala.annotation.tailrec
+
 object Sequences: // Essentially, generic linkedlists
 
   enum Sequence[E]:
@@ -33,7 +35,9 @@ object Sequences: // Essentially, generic linkedlists
      * E.g., [10, 20, 30], 0 => [10, 20, 30]
      * E.g., [], 2 => []
      */
-    def skip[A](s: Sequence[A])(n: Int): Sequence[A] = ???
+    def skip[A](s: Sequence[A])(n: Int): Sequence[A] = s match
+      case Cons(head, tail) if n > 0 => skip(tail)(n - 1)
+      case _ => s
 
     /*
      * Zip two sequences
@@ -41,7 +45,10 @@ object Sequences: // Essentially, generic linkedlists
      * E.g., [10], [] => []
      * E.g., [], [] => []
      */
-    def zip[A, B](first: Sequence[A], second: Sequence[B]): Sequence[(A, B)] = ???
+    def zip[A, B](first: Sequence[A], second: Sequence[B]): Sequence[(A, B)] = (first, second) match
+      case (Cons(h1, t1), Cons(h2, t2)) => Cons((h1, h2), zip(t1, t2))
+      case _ => Nil()
+
 
     /*
      * Concatenate two sequences
@@ -49,7 +56,9 @@ object Sequences: // Essentially, generic linkedlists
      * E.g., [10], [] => [10]
      * E.g., [], [] => []
      */
-    def concat[A](s1: Sequence[A], s2: Sequence[A]): Sequence[A] = ???
+    def concat[A](s1: Sequence[A], s2: Sequence[A]): Sequence[A] = s1 match
+      case Cons(h1, t1) => Cons(h1, concat(t1, s2))
+      case _ => s2
 
     /*
      * Reverse the sequence
@@ -57,7 +66,12 @@ object Sequences: // Essentially, generic linkedlists
      * E.g., [10] => [10]
      * E.g., [] => []
      */
-    def reverse[A](s: Sequence[A]): Sequence[A] = ???
+    def reverse[A](s: Sequence[A]): Sequence[A] =
+      @tailrec
+      def _reverse(s: Sequence[A], r: Sequence[A]): Sequence[A] = s match
+        case Cons(h, t) => _reverse(t, Cons(h, r))
+        case _ => r
+      _reverse(s, Nil())
 
     /*
      * Map the elements of the sequence to a new sequence and flatten the result
@@ -65,35 +79,48 @@ object Sequences: // Essentially, generic linkedlists
      * E.g., [10, 20, 30], calling with mapper(v => [v]) returns [10, 20, 30]
      * E.g., [10, 20, 30], calling with mapper(v => Nil()) returns []
      */
-    def flatMap[A, B](s: Sequence[A])(mapper: A => Sequence[B]): Sequence[B] = ???
+    def flatMap[A, B](s: Sequence[A])(mapper: A => Sequence[B]): Sequence[B] = s match
+      case Cons(h, t) => concat(mapper(h), flatMap(t)(mapper))
+      case _ => Nil()
 
     /*
      * Get the minimum element in the sequence
      * E.g., [30, 20, 10] => 10
      * E.g., [10, 1, 30] => 1
      */
-    def min(s: Sequence[Int]): Optional[Int] = ???
+    def min(s: Sequence[Int]): Optional[Int] = s match
+      case Cons(h, t) => if h < orElse(min(t), Int.MaxValue) then Just(h) else min(t)
+      case _ => Empty()
 
     /*
      * Get the elements at even indices
      * E.g., [10, 20, 30] => [10, 30]
      * E.g., [10, 20, 30, 40] => [10, 30]
      */
-    def evenIndices[A](s: Sequence[A]): Sequence[A] = ???
+    def evenIndices[A](s: Sequence[A]): Sequence[A] = s match
+      case Cons(h, Cons(h2, t2)) => Cons(h, evenIndices(t2))
+      case s => s
 
     /*
      * Check if the sequence contains the element
      * E.g., [10, 20, 30] => true if elem is 20
      * E.g., [10, 20, 30] => false if elem is 40
      */
-    def contains[A](s: Sequence[A])(elem: A): Boolean = ???
+    def contains[A](s: Sequence[A])(elem: A): Boolean = s match
+      case Cons(h, t) => if h != elem then contains(t)(elem) else h == elem
+      case _ => false
 
     /*
      * Remove duplicates from the sequence
      * E.g., [10, 20, 10, 30] => [10, 20, 30]
      * E.g., [10, 20, 30] => [10, 20, 30]
      */
-    def distinct[A](s: Sequence[A]): Sequence[A] = ???
+    def distinct[A](s: Sequence[A]): Sequence[A] =
+      @tailrec
+      def _distinct(s: Sequence[A], r: Sequence[A]): Sequence[A] = s match
+        case Cons(h, t) =>  if contains(r)(h) then _distinct(t, r) else _distinct(t, Cons(h, r))
+        case _ => reverse(r)
+      _distinct(s, Nil())
 
     /*
      * Group contiguous elements in the sequence
@@ -121,3 +148,4 @@ end Sequences
   import Sequence.*
 
   println(sum(map(filter(sequence)(_ >= 20))(_ + 1))) // 21+31 = 52
+
