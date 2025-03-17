@@ -4,12 +4,15 @@ import Optionals.Optional.*
 import extensionmethods.Sequences.*
 import org.junit.*
 import org.junit.Assert.*
+import u02.Modules.Person
+import u02.Modules.Person.{Student, Teacher}
 
 class SequenceTest:
   import u03.Sequences.*
   import Sequence.*
 
   val sequence: Sequence[Int] = Cons(10, Cons(20, Cons(30, Nil())))
+  val sequencePerson: Sequence[Person] = Cons(Student("Mario", 2020), Cons(Student("Lorenzo", 2021), Cons(Teacher("Marco", "corso1"), Cons(Student("Emma", 2022), Cons(Teacher("Luigi", "corso2"), Nil())))))
 
   @Test def testSum() =
     assertEquals(0, sum(Nil()))
@@ -86,5 +89,16 @@ class SequenceTest:
     val (evenEmpty, oddEmpty) = partition(emptySequence)(x => true)
     assertEquals(Nil(), evenEmpty)
     assertEquals(Nil(), oddEmpty)
+
+  @Test def testGetCourses() =
+    val sequenceCourse = Cons("corso1", Cons("corso2", Nil()))
+    assertEquals(sequenceCourse, getCourses(sequencePerson))
+
+  @Test def testFoldLeft() =
+    val lst = Cons(3, Cons(7, Cons(1, Cons(5, Nil()))))
+    assertEquals(-16, foldLeft(lst)(0)(_ - _))
+
+  @Test def testGetCoursesSum() =
+    assertEquals(2, getCourses(sequencePerson))
 
 end SequenceTest

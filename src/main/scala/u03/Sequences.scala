@@ -1,5 +1,7 @@
 package u03
 
+import u02.Modules.Person.Teacher
+import u02.Modules.{Person, isStudent}
 import u03.Optionals.Optional
 import u03.Optionals.Optional.*
 
@@ -142,6 +144,18 @@ object Sequences: // Essentially, generic linkedlists
      */
     def partition[A](s: Sequence[A])(pred: A => Boolean): (Sequence[A], Sequence[A]) =
       (filter(s)(pred), filter(s)(v => !pred(v)))
+
+    def getCourses(s: Sequence[Person]): Sequence[String] =
+      map(filter(s)(p => !isStudent(p)))(t => t.asInstanceOf[Teacher].course)
+
+    def foldLeft[A](s: Sequence[A])(default: A)(operator: (A,A) => A): A =
+      def _foldLeft(s: Sequence[A], pred: A): A = s match
+        case Cons(h, t) => _foldLeft(t, operator(pred, h))
+        case _ => pred
+      _foldLeft(s, default)
+
+    def getCoursesSum(s: Sequence[Person]): Int =
+      foldLeft(flatMap(filter(s)(p => !isStudent(p)))(t => 1))(0)(_ + _)
 
   end Sequence
 end Sequences
