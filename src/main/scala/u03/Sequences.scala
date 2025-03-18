@@ -29,6 +29,7 @@ object Sequences: // Essentially, generic linkedlists
       case Nil() => Nil()
 
     // Lab 03
+    // Task 1
 
     /*
      * Skip the first n elements of the sequence
@@ -145,6 +146,7 @@ object Sequences: // Essentially, generic linkedlists
     def partition[A](s: Sequence[A])(pred: A => Boolean): (Sequence[A], Sequence[A]) =
       (filter(s)(pred), filter(s)(v => !pred(v)))
 
+    //Task 2
     def getCourses(s: Sequence[Person]): Sequence[String] =
       map(filter(s)(p => !isStudent(p)))(t => t.asInstanceOf[Teacher].course)
 
