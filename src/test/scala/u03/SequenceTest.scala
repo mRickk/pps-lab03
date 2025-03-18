@@ -99,6 +99,6 @@ class SequenceTest:
     assertEquals(-16, foldLeft(lst)(0)(_ - _))
 
   @Test def testGetCoursesSum() =
-    assertEquals(2, getCourses(sequencePerson))
+    assertEquals(2, getCoursesSum(sequencePerson))
 
 end SequenceTest

@@ -1,5 +1,7 @@
 package u03
 
+import scala.annotation.tailrec
+
 object Streams extends App:
 
   import Sequences.*
@@ -42,12 +44,32 @@ object Streams extends App:
     def takeWhile[A](stream: Stream[A])(pred: A => Boolean): Stream[A] = stream match
       case Cons(head, tail) if pred(head()) => cons(head(), takeWhile(tail())(pred))
       case _ => Empty()
-    
+
+    def fill[A](n: Int)(k: A): Stream[A] =
+      @tailrec
+      def _fill(i: Int, t: Stream[A]): Stream[A] =
+        if i > 0 then _fill(i-1, Cons(() => k, () => t)) else t
+      _fill(n, Empty())
+
     def interleave[A](stream1: Stream[A], stream2: Stream[A]): Stream[A] = (stream1, stream2) match
       case (Cons(h1, t1), Cons(h2, t2)) => cons(h1(), cons(h2(), interleave(t1(), t2())))
       case (Cons(h1, t1), _) => cons(h1(), interleave(t1(), empty()))
       case (_, Cons(h2, t2)) => cons(h2(), interleave(empty(), t2()))
       case _ => empty()
+
+    def fibonacci(f1: Int, f2: Int): Stream[Int] =
+        if f2 == 0 then
+          cons(f2, cons(f1, cons(f1 + f2, fibonacci(f1 + f2, f1))))
+        else
+          cons(f1 + f2, fibonacci(f1 + f2, f1))
+
+    def cycle[A](lst: Sequence[A]): Stream[A] =
+      def _cycle(l: Sequence[A]): Stream[A] = l match
+        case Sequence.Cons(h, t) => cons(h, _cycle(t))
+        case _ => _cycle(lst)
+      _cycle(lst)
+
+
   end Stream
 end Streams
 

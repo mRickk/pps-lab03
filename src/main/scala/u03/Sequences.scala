@@ -155,7 +155,7 @@ object Sequences: // Essentially, generic linkedlists
       _foldLeft(s, default)
 
     def getCoursesSum(s: Sequence[Person]): Int =
-      foldLeft(flatMap(filter(s)(p => !isStudent(p)))(t => 1))(0)(_ + _)
+      foldLeft(map(filter(s)(p => !isStudent(p)))(_ => 1))(0)(_ + _)
 
   end Sequence
 end Sequences
