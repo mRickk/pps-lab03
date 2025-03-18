@@ -48,7 +48,7 @@ object Streams extends App:
     def fill[A](n: Int)(k: A): Stream[A] =
       @tailrec
       def _fill(i: Int, t: Stream[A]): Stream[A] =
-        if i > 0 then _fill(i-1, Cons(() => k, () => t)) else t
+        if i > 0 then _fill(i-1, cons(k, t)) else t
       _fill(n, Empty())
 
     def interleave[A](stream1: Stream[A], stream2: Stream[A]): Stream[A] = (stream1, stream2) match
